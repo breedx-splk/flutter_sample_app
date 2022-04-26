@@ -30,12 +30,12 @@ class _SessionId extends State<SessionIdText> {
   Widget build(BuildContext context) {
     return Consumer<SessionIdModel>(
       builder: (context, model, child) {
-        TextEditingController myController = TextEditingController()..text = model.getSessionId();
+        TextEditingController textController = TextEditingController()..text = model.getSessionId();
         return Row(
             children: [
               Flexible(
                 child: TextField(
-                    controller: myController,
+                    controller: textController,
                     readOnly: true,
                     decoration: const InputDecoration(
                       border: UnderlineInputBorder(),
