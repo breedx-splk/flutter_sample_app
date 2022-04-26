@@ -2,22 +2,88 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter_sample_app/rum.dart';
+import 'package:flutter_sample_app/session_id.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const FlutterSampleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+var rum = SplunkRum();
+
+class FlutterSampleApp extends StatelessWidget {
+  const FlutterSampleApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-        title: 'Startup Name Generator', home: RandomWords());
+    return MaterialApp(
+        title: 'Flutter Sample App',
+        home: Scaffold(
+          appBar: AppBar(
+              title: const Text("Flutter Sample App")
+          ),
+          body: const FirstPageLayout(),
+        )
+    );
+  }
+}
+
+class FirstPageLayout extends StatelessWidget {
+  const FirstPageLayout({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var sessionIdModel = SessionIdModel();
+    var sessionIdText = const SessionIdText();
+    rum.getSessionId().then((value) {
+      debugPrint("Splunk RUM session id => $value");
+      sessionIdModel.setSessionId(value);
+    });
+    var droidButton = IconButton(
+                    padding: const EdgeInsets.all(0),
+                    iconSize: 100,
+                    alignment: Alignment.centerRight,
+                    icon: (const Icon(Icons.adb_outlined)),
+                    color: Colors.blueGrey[500],
+                    onPressed: _droidClicked,
+                  );
+    return Container(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          children: [
+            Row(
+                children: const [
+                  Text('dart + splunk rum'),
+                ]
+            ),
+            ChangeNotifierProvider(
+              create: (context) => sessionIdModel,
+              child: sessionIdText
+            ),
+            Row(
+                children: [
+                  const Text('Click for event:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30
+                    ),
+                  ),
+                  droidButton
+                ]
+            )
+          ]
+      )
+    );
+  }
+
+  void _droidClicked(){
+    debugPrint("i was clicked");
+    var words = WordPair.random().asPascalCase;
+    var attributes = [];
+    rum.addRumEvent(words, attributes);
   }
 }
 
@@ -34,28 +100,27 @@ class _RandomWordsState extends State<RandomWords> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Startup Name Generator'),
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return const Divider();
-          /*2*/
+    return buildBody();
+  }
 
-          final index = i ~/ 2; /*3*/
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-          }
-          return ListTile(
-            title: Text(
-              _suggestions[index].asPascalCase,
-              style: _biggerFont,
-            ),
-          );
-        },
-      ),
+  ListView buildBody() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+      itemBuilder: /*1*/ (context, i) {
+        if (i.isOdd) return const Divider();
+        /*2*/
+
+        final index = i ~/ 2; /*3*/
+        if (index >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+        }
+        return ListTile(
+          title: Text(
+            _suggestions[index].asPascalCase,
+            style: _biggerFont,
+          ),
+        );
+      },
     );
   }
 }

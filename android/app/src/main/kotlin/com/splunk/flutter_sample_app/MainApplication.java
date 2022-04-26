@@ -1,5 +1,7 @@
 package com.splunk.flutter_sample_app;
+
 import android.app.Application;
+
 import com.splunk.rum.Config;
 import com.splunk.rum.SplunkRum;
 import com.splunk.rum.StandardAttributes;
@@ -12,6 +14,7 @@ import android.util.Log;
 import java.time.Duration;
 
 public class MainApplication extends FlutterApplication {
+
 
     @Override
     public void onCreate() {
@@ -37,7 +40,9 @@ public class MainApplication extends FlutterApplication {
                                                 BuildConfig.VERSION_NAME)
                                         .build())
                         .build();
-        SplunkRum.initialize(config, this);
+        FlutterInterop.rum = SplunkRum.initialize(config, this);
         Log.i("flutter_sample", "Splunk flutter sample app started");
     }
+
+
 }
