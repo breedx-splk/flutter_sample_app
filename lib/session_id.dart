@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SessionIdModel extends ChangeNotifier {
-
-  var _sessionId = "";
+  var _sessionId = "unknown";
 
   getSessionId(){
     return _sessionId;
@@ -11,6 +10,7 @@ class SessionIdModel extends ChangeNotifier {
 
   setSessionId(value){
     _sessionId = value;
+    notifyListeners();
   }
 }
 
@@ -28,14 +28,23 @@ class _SessionId extends State<SessionIdText> {
   @override
   Widget build(BuildContext context) {
     return Consumer<SessionIdModel>(
-      builder: (context, model, child){
+      builder: (context, model, child) {
+        TextEditingController myController = TextEditingController()..text = model.getSessionId();
         return Row(
             children: [
-              Text("session id: ${model.getSessionId()}"),
+              Flexible(
+                child: TextField(
+                    controller: myController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: 'session id:',
+                    )
+                )
+              )
             ]
         );
       }
     );
   }
-
 }

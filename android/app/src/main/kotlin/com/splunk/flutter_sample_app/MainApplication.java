@@ -31,7 +31,6 @@ public class MainApplication extends FlutterApplication {
                         .debugEnabled(true)
                         .diskBufferingEnabled(true)
                         .deploymentEnvironment("demo")
-//                        .limitDiskUsageMegabytes(1)
                         .globalAttributes(
                                 Attributes.builder()
                                         .put("vendor", "Splunk")
