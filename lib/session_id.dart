@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SessionIdModel extends ChangeNotifier {
@@ -41,7 +42,18 @@ class _SessionId extends State<SessionIdText> {
                       labelText: 'session id:',
                     )
                 )
-              )
+              ),
+              IconButton(
+                padding: const EdgeInsets.all(0),
+                iconSize: 28,
+                alignment: Alignment.center,
+                icon: (const Icon(Icons.copy)),
+                color: Colors.black38,
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: model.getSessionId()));
+                },
+              ),
+              const SizedBox(height: 75)
             ]
         );
       }
