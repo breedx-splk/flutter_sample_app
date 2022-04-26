@@ -82,7 +82,10 @@ class FirstPageLayout extends StatelessWidget {
   void _droidClicked(){
     debugPrint("i was clicked");
     var words = WordPair.random().asPascalCase;
-    var attributes = [];
+    var attributes = {
+      "click.target": "a robot",
+      "click.reason": "futility"
+    };
     rum.addRumEvent(words, attributes);
   }
 }

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.splunk.rum.SplunkRum;
 
+import java.util.List;
 import java.util.Map;
 
 import io.flutter.plugin.common.MethodCall;
@@ -18,8 +19,14 @@ public class FlutterInterop {
     public void dispatch(MethodCall methodCall, MethodChannel.Result result) {
         if (methodCall.method.equals("addRumEvent")) {
             Log.i("FlutterInterop", "dispatching addRumEvent");
-            Log.i("FlutterInterop", methodCall.arguments.toString());
-//            addRumEvent(name, attributes);
+            List<Object> args = methodCall.arguments();
+            String name = (String) args.get(0);
+            Map<String, String> attrMap = (Map<String, String>) args.get(1);
+            AttributesBuilder attributesBuilder = Attributes.builder();
+            for (Map.Entry<String, String> entry : attrMap.entrySet()) {
+                attributesBuilder.put(entry.getKey(), entry.getValue());
+            }
+            rum.addRumEvent(name, attributesBuilder.build());
         }
         if (methodCall.method.equals("getSessionId")){
             result.success(getSessionId());
