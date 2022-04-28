@@ -4,9 +4,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter_sample_app/biz_logic.dart';
+import 'package:flutter_sample_app/otel_instrumented.dart';
 import 'package:flutter_sample_app/rum.dart';
 import 'package:flutter_sample_app/session_id.dart';
 import 'package:provider/provider.dart';
+
 
 void main() {
   runApp(const FlutterSampleApp());
@@ -32,6 +35,8 @@ class FlutterSampleApp extends StatelessWidget {
 }
 
 class FirstPageLayout extends StatelessWidget {
+   final bizLogic = const BizLogic();
+
   const FirstPageLayout({Key? key}) : super(key: key);
 
   @override
@@ -49,6 +54,14 @@ class FirstPageLayout extends StatelessWidget {
                     icon: (const Icon(Icons.adb_outlined)),
                     color: Colors.blueGrey[500],
                     onPressed: _droidClicked,
+                  );
+    var traceButton = IconButton(
+                    padding: const EdgeInsets.all(0),
+                    iconSize: 100,
+                    alignment: Alignment.centerRight,
+                    icon: (const Icon(Icons.account_tree_outlined)),
+                    color: Colors.pinkAccent[500],
+                    onPressed: () => bizLogic.doGreatThing(),
                   );
     return Container(
         padding: const EdgeInsets.all(32),
@@ -73,6 +86,17 @@ class FirstPageLayout extends StatelessWidget {
                   ),
                   droidButton
                 ]
+            ),
+            Row(
+                children: [
+                  const Text('Click for trace:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30
+                    ),
+                  ),
+                  traceButton
+                ]
             )
           ]
       )
@@ -80,7 +104,7 @@ class FirstPageLayout extends StatelessWidget {
   }
 
   void _droidClicked(){
-    debugPrint("i was clicked");
+    debugPrint("robot was clicked");
     var words = WordPair.random().asPascalCase;
     var attributes = {
       "click.target": "a robot",
@@ -88,6 +112,7 @@ class FirstPageLayout extends StatelessWidget {
     };
     rum.addRumEvent(words, attributes);
   }
+
 }
 
 class RandomWords extends StatefulWidget {

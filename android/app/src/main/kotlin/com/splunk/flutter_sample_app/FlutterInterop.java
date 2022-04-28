@@ -11,6 +11,8 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Scope;
 
 public class FlutterInterop {
 
@@ -44,5 +46,12 @@ public class FlutterInterop {
             attributesBuilder.put(entry.getKey(), entry.getValue());
         }
         rum.addRumEvent(name, attributesBuilder.build());
+    }
+
+    public void startSpan(String name) {
+        Span span = rum.getOpenTelemetry().getTracer("flutter")
+                .spanBuilder("name")
+                .startSpan();
+        Scope scope = span.makeCurrent();
     }
 }

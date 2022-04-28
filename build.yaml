@@ -1,0 +1,18 @@
+targets:
+  $default:
+    builders:
+      flutter_sample_app|otel_instrumented:
+        enabled: true
+#        generate_for:
+#          - lib/main.dart
+#          - lib/session_id.dart
+
+builders:
+  otel_instrumented:
+    target: ":flutter_sample_app"
+    import: "package:flutter_sample_app/generator.dart"
+    builder_factories: ["createOtelInstrumentedBuilder"]
+    build_extensions: {".dart": [".otel_instrumented.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]

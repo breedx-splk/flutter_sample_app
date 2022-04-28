@@ -1,9 +1,8 @@
-
 /*
 Example/spike of some splunk RUM behaviors in Dart
 */
-
-import 'dart:collection';
+library rum;
+export 'rum.dart';
 
 import 'package:flutter/services.dart';
 
@@ -14,8 +13,9 @@ class SplunkRum {
     await channel.invokeMethod("addRumEvent", [name, attributes]);
   }
 
-  getSessionId(){
+  getSessionId() {
     return channel.invokeMethod("getSessionId");
   }
 
 }
+
