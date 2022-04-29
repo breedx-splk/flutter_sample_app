@@ -43,22 +43,6 @@ class FirstPageLayout extends StatelessWidget {
       debugPrint("Splunk RUM session id => $value");
       sessionIdModel.setSessionId(value);
     });
-    var droidButton = IconButton(
-                    padding: const EdgeInsets.all(0),
-                    iconSize: 100,
-                    alignment: Alignment.centerRight,
-                    icon: (const Icon(Icons.adb_outlined)),
-                    color: Colors.blueGrey[500],
-                    onPressed: _droidClicked,
-                  );
-    var traceButton = IconButton(
-                    padding: const EdgeInsets.all(0),
-                    iconSize: 100,
-                    alignment: Alignment.centerRight,
-                    icon: (const Icon(Icons.account_tree_outlined)),
-                    color: Colors.pinkAccent[500],
-                    onPressed: () => bizLogic.doGreatThing(),
-                  );
     return Container(
         padding: const EdgeInsets.all(32),
         child: Column(
@@ -72,31 +56,80 @@ class FirstPageLayout extends StatelessWidget {
               create: (context) => sessionIdModel,
               child: sessionIdText
             ),
-            Row(
-                children: [
-                  const Text('Click for event:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30
-                    ),
-                  ),
-                  droidButton
-                ]
-            ),
-            Row(
-                children: [
-                  const Text('Click for trace:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30
-                    ),
-                  ),
-                  traceButton
-                ]
-            )
+            buildEventRow(),
+            buildCodeGenRow(),
+            buildManualRow()
           ]
       )
     );
+  }
+
+  Row buildEventRow() {
+    var droidButton = IconButton(
+      padding: const EdgeInsets.all(0),
+      iconSize: 100,
+      alignment: Alignment.centerRight,
+      icon: (const Icon(Icons.adb_outlined)),
+      color: Colors.blueGrey[500],
+      onPressed: _droidClicked,
+    );
+    return Row(children: [
+      const Text(
+        'Click for event:',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+      ),
+      droidButton
+    ]);
+  }
+
+  Row buildCodeGenRow() {
+    var traceButton = IconButton(
+      padding: const EdgeInsets.all(0),
+      iconSize: 75,
+      alignment: Alignment.centerRight,
+      icon: (const Icon(Icons.account_tree_outlined)),
+      color: Colors.pinkAccent[500],
+      onPressed: () => bizLogic.doGreatThing(),
+    );
+    return Row(children: [
+      const Text(
+        'Trace (generated):',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+      ),
+      traceButton
+    ]);
+  }
+
+  Row buildManualRow() {
+    var traceButton = IconButton(
+      padding: const EdgeInsets.all(0),
+      iconSize: 75,
+      alignment: Alignment.centerRight,
+      icon: (const Icon(Icons.account_tree_outlined)),
+      color: Colors.cyan[500],
+      onPressed: () => _traceManual(),
+    );
+    return Row(children: [
+      const Text(
+        'Trace (manual): ',
+        style: TextStyle(
+            fontWeight: FontWeight.bold, color: Colors.purple, fontSize: 28),
+      ),
+      traceButton
+    ]);
+  }
+
+  dynamic _traceManual() {
+    debugPrint("trace manual started");
+    rum.runInSpan("outer skin", (){
+      debugPrint("outer skin");
+      rum.runInSpan("musculature", (){
+        debugPrint("musculature");
+        rum.runInSpan("inner skeleton", (){
+          debugPrint("Inner skeleton");
+        });
+      });
+    });
   }
 
   void _droidClicked(){

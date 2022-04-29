@@ -19,6 +19,7 @@ public class FlutterInterop {
 
     public static SplunkRum rum;
     private final Map<String,Scope> activeScopes = new HashMap<>();
+    private final Map<String,Span> activeSpans = new HashMap<>();
 
     public void dispatch(MethodCall methodCall, MethodChannel.Result result) {
         if (methodCall.method.equals("addRumEvent")) {
@@ -38,11 +39,14 @@ public class FlutterInterop {
         if (methodCall.method.equals("startSpan")){
             List<Object> args = methodCall.arguments();
             String spanName = (String) args.get(0);
-            result.success(startSpan(spanName));
+            String scopeId = startSpan(spanName);
+            Log.d("FlutterInterop", "start span with scopeId = " + scopeId);
+            result.success(scopeId);
         }
         if(methodCall.method.equals("endSpan")){
             List<Object> args = methodCall.arguments();
             String scopeId = (String) args.get(0);
+            Log.d("FlutterInterop", "end span with scopeId = " + scopeId);
             endSpan(scopeId);
         }
     }
@@ -61,17 +65,21 @@ public class FlutterInterop {
     }
 
     public String startSpan(String name) {
-        Span span = rum.getOpenTelemetry().getTracer("flutter")
+        Span span = rum.getOpenTelemetry().getTracer("SplunkRum")
                 .spanBuilder(name)
                 // TODO: Add common attributes etc.
                 .startSpan();
         Scope scope = span.makeCurrent();
         String scopeId = String.valueOf(scope.hashCode());
         activeScopes.put(scopeId, scope); // YIKES, this feels so bad.
+        activeSpans.put(scopeId, span); // YIKES, this feels so bad.
         return scopeId;
     }
 
     public void endSpan(String scopeId){
         activeScopes.get(scopeId).close();
+        activeScopes.remove(scopeId);
+        activeSpans.get(scopeId).end();
+        activeSpans.remove(scopeId);
     }
 }
