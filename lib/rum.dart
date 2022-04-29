@@ -32,10 +32,11 @@ class SplunkRum {
     await channel.invokeMethod("endSpan", [scopeId]);
   }
 
-  void runInSpan(String name, VoidCallback fn) async {
-    startSpan(name).then((scopeId) {
+  Future<dynamic> runInSpan(String name, Function fn) async {
+    return startSpan(name).then((scopeId) async {
       try {
-        fn();
+        Future<dynamic> result = fn();
+        return await result;
       }
       finally {
         endSpan(scopeId);

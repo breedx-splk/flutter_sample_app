@@ -119,17 +119,19 @@ class FirstPageLayout extends StatelessWidget {
     ]);
   }
 
-  dynamic _traceManual() {
+  dynamic _traceManual() async {
     debugPrint("trace manual started");
-    rum.runInSpan("outer skin", (){
+    var result = await rum.runInSpan("outer skin", () async {
       debugPrint("outer skin");
-      rum.runInSpan("musculature", (){
+      return await rum.runInSpan("musculature", () async {
         debugPrint("musculature");
-        rum.runInSpan("inner skeleton", (){
+        return await rum.runInSpan("inner skeleton", () async {
           debugPrint("Inner skeleton");
+          return await Future.delayed(const Duration(seconds: 1), () => "trace complete");
         });
       });
     });
+    debugPrint(result);
   }
 
   void _droidClicked(){
