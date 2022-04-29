@@ -10,7 +10,7 @@ To start, run `flutter get` to grab dependencies.
 
 The sample app is in `main.dart`. Just run it with the android emulator.
 
-<img width="415" alt="image" src="https://user-images.githubusercontent.com/75337021/166078476-cfca73c5-dc20-4cc6-b57c-b0e3d026b778.png">
+<img width="250" alt="image" src="https://user-images.githubusercontent.com/75337021/166078594-5a107b5a-d6b4-4172-ae6d-b8570407f77a.png">
 
 * Press the copy button to grab the session id to the clipboard
 * Click the android to generate a custom event
