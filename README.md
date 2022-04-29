@@ -2,7 +2,7 @@
 
 Sample flutter app.
 
-Exploring some instrumentation ideas for flutter+dart+otel, that's all.
+Exploring some instrumentation ideas for flutter+dart+otel+rum, that's all.
 
 # sample app
 
