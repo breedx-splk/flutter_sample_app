@@ -4,10 +4,6 @@ import 'package:flutter_sample_app/with_span.dart';
 import 'package:flutter_sample_app/otel_instrumented.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/visitor.dart';
-import 'package:analyzer/dart/element/element.dart';
-
-// Builder createWithSpanBuilder(BuilderOptions options) =>
-//     SharedPartBuilder([WithSpanGenerator()], 'with_span');
 
 Builder createOtelInstrumentedBuilder(BuilderOptions options) =>
     SharedPartBuilder([OtelInstrumentedGenerator()], 'otel_instrumented');
@@ -17,73 +13,92 @@ class OtelInstrumentedGenerator extends GeneratorForAnnotation<OtelInstrumented>
   @override
   generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) {
-    print('HO HO HO HARDY HAR HAR');
-    print('HO HO HO HARDY HAR HAR');
-    print('HO HO HO HARDY HAR HAR');
-    // print(element.type);
-    print(element.metadata);
-    var visitor = WithSpanVisitor();
+    final visitor = WithSpanVisitor();
     element.visitChildren(visitor);
-    // for (var m in element.metadata) {
-    //   print(m);
-    // }
 
-    var methods = visitor.buildMethods();
+    final methods = visitor.buildMethods();
 
-    var className = element.declaration?.name;
+    final className = element.declaration?.name;
     return '''
-      // class OtelInstrumented$className extends $className {
+      class OtelInstrumented$className extends $className {
       //   I am a pony!";
-      // $methods
-      // }
+        $methods
+      }
     ''';
   }
 }
-//
-// class WithSpanGenerator extends GeneratorForAnnotation<WithSpan> {
-//
-//   @override
-//   generateForAnnotatedElement(
-//       Element element, ConstantReader annotation, BuildStep buildStep) {
-//     print('HO HO HO HARDY HAR HAR');
-//     print('HO HO HO HARDY HAR HAR');
-//     print('HO HO HO HARDY HAR HAR');
-//     // print(element.type);
-//     print(element.metadata);
-//     element.visitChildren(new WithSpanVisitor());
-//     // for (var m in element.metadata) {
-//     //   print(m);
-//     // }
-//     return "// I am a pony!";
-//   }
-// }
 
 class WithSpanVisitor extends SimpleElementVisitor<void> {
 
-  var methods = [];
+  final withSpanChecker = const TypeChecker.fromRuntime(WithSpan);
+  var methods = <MethodElement>[];
 
   @override
   void visitMethodElement(MethodElement element) {
-    var withSpanChecker = const TypeChecker.fromRuntime(WithSpan);
-    print("  displayName => " + element.displayName);
+    // print("  displayName => " + element.displayName);
     // print("  declaration name => " + element.declaration.name);
+    // print("  return type => " + element.declaration.returnType.getDisplayString(withNullability: false));
+    // for (var param in element.declaration.parameters) {
+    //   print("       ${param.declaration.type} ${param.declaration.name}");
+    // }
     if(withSpanChecker.hasAnnotationOfExact(element)){
-      print("    yes sweet it has it!");
+      print(element.metadata);
+      print(element.metadata[0]);
+      print(element.metadata[0].context);
+      print(element.metadata[0].element);
+      print(element.metadata[0].computeConstantValue()?.getField("name"));
       methods.add(element);
     }
-    else {
-      print("    Gonna ignore this one");
-    }
-    // for (var annotation in element.metadata) {
-    //   print("runtime type: " + annotation.runtimeType.toString());
-    //   annotation.runtimeType.
-    // }
-    // print("  " + element.metadata.toString());
   }
 
   buildMethods() {
-    for (var method in methods) {
+    var results = <String>[];
+    for (MethodElement method in methods) {
+      var returnType = method.declaration.returnType.getDisplayString(withNullability: false);
+      returnType = (returnType == "dynamic") ? "" : "$returnType ";
+      final methodName = method.declaration.name;
+      final declArgs = buildMethodArgs(method);
+      final argList = buildMethodArgs(method, withType: false);
+      var spanName = getSpanName(method);
+      spanName = "'$spanName'";
 
+      //TODO: This probably needs to look very different for async methods <YIKES>
+
+      final thisMethod = '''
+      @override
+      $returnType$methodName($declArgs) {
+        final scopeId = rum.startSpan($spanName);
+        try {
+          return super.$methodName($argList);
+        }
+        finally {
+          rum.endSpan(scopeId);
+        }
+      }
+      ''';
+      results.add(thisMethod);
     }
+    return results.join("\n\n");
   }
+
+  buildMethodArgs(MethodElement method, {withType = true}) {
+    var args = <String>[];
+    for (ParameterElement param in method.declaration.parameters) {
+      var typePart = withType ? "${param.declaration.type} " : "";
+      var arg = "$typePart${param.declaration.name}";
+      args.add(arg);
+    }
+    return args.join(", ");
+  }
+
+  String getSpanName(MethodElement method) {
+    for (ElementAnnotation meta in method.metadata) {
+      // TODO: Gotta be a better way of finding the annotation on the method, bah.
+      if(meta.toString().startsWith("@WithSpan")){
+        return meta.computeConstantValue()?.getField('name')?.toStringValue() ?? method.declaration.name;
+      }
+    }
+    return method.declaration.name;
+  }
+
 }

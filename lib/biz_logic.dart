@@ -1,5 +1,6 @@
 
 import 'package:flutter_sample_app/otel_instrumented.dart';
+import 'package:flutter_sample_app/rum.dart';
 import 'package:flutter_sample_app/with_span.dart';
 import 'package:flutter/foundation.dart';
 
@@ -17,15 +18,20 @@ class BizLogic {
   }
 
   @WithSpan()
-  _anotherMethod(){
-    debugPrint("  anotherMethod was called");
-    return _finalMethod() * 3;
+  int _anotherMethod(){
+    debugPrint("  _anotherMethod was called");
+    return _someIntermediate(2) * 3;
+  }
+
+  _someIntermediate(value){
+    debugPrint("  in _someIntermediate");
+    return _finalMethod(value);
   }
 
   @WithSpan()
-  _finalMethod(){
-    debugPrint("  in the final method");
-    return 5;
+  _finalMethod(value){
+    debugPrint("  in the _finalMethod");
+    return 5 + value;
   }
 
 }

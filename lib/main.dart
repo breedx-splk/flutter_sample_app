@@ -5,17 +5,13 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter_sample_app/biz_logic.dart';
-import 'package:flutter_sample_app/otel_instrumented.dart';
 import 'package:flutter_sample_app/rum.dart';
 import 'package:flutter_sample_app/session_id.dart';
 import 'package:provider/provider.dart';
 
-
 void main() {
   runApp(const FlutterSampleApp());
 }
-
-var rum = SplunkRum();
 
 class FlutterSampleApp extends StatelessWidget {
   const FlutterSampleApp({Key? key}) : super(key: key);
@@ -28,16 +24,16 @@ class FlutterSampleApp extends StatelessWidget {
           appBar: AppBar(
               title: const Text("Flutter Sample App")
           ),
-          body: const FirstPageLayout(),
+          body: FirstPageLayout(),
         )
     );
   }
 }
 
 class FirstPageLayout extends StatelessWidget {
-   final bizLogic = const BizLogic();
+   final bizLogic = OtelInstrumentedBizLogic();
 
-  const FirstPageLayout({Key? key}) : super(key: key);
+  FirstPageLayout({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
